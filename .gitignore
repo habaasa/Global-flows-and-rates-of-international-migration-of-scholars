@@ -9,5 +9,5 @@ plots/netmig_openalex_vs_netmig_scopus.pdf
 plots/outmig_openalex_vs_outmig_scopus.html
 plots/paddedpop_openalex_vs_paddedpop_scopus.html
 .Rproj.user
-
 /.quarto/
+.Rhistory
