@@ -1,0 +1,110 @@
+---
+title: "EDSD Open Science Workshop"
+author: "Gilbert Habaasa"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r}
+library(sf)
+library(spData)
+library(countrycode)
+library(flowmapblue)
+library(flowmapper)
+
+library(tidyverse)
+```
+
+
+
+```{r}
+scopus_country_flows <- read.csv("data_processed/scopus_2024_V1_scholarlymigration_countryflows_enriched.csv")
+```
+
+
+
+
+```{r}
+countries <- spData::world
+glimpse(countries)
+```
+
+```{r}
+countries |> 
+  ggplot() +
+  geom_sf()
+```
+
+```{r}
+ggplot() +
+  geom_sf(data = countries) +
+  geom_sf(data = st_centroid(countries), color = "darkred")
+```
+
+```{r}
+countries <- spData::world
+countries_centroids <- countries |> 
+  st_centroid() |> # finds a center of each country'spolygon
+  st_coordinates() |>  # extracts numeric coorindates from the POINT geometry
+  as.data.frame() |> # converts the matrix to a data.frame 
+  setNames(c("lon", "lat")) |> # renames the columns
+  cbind(countries) |> # adds back all the columns (except for geometry) form `countries`
+  select(iso_a2, lon, lat, name_long) # only selects a few columns that we really need
+
+head(countries_centroids)
+
+```
+
+```{r}
+library(countrycode)
+
+# assuming your data.frame is called `scopus_country_flows`
+scopus_country_flows <- scopus_country_flows |> 
+  mutate(
+    iso2codefrom = countrycode(iso3codefrom,
+      origin = "iso3c",
+      destination = "iso2c"),
+    iso2codeto = countrycode(iso3codeto,
+      origin = "iso3c",
+      destination = "iso2c")
+  )
+```
+
+```{r}
+# flows <- scopus_country_flows |> 
+#      select(n_migrations,iso2codefrom,iso2codeto) |> 
+#   rename(count=n_migrations,dest=iso2codeto,origin=iso2codefrom)
+# flows
+```
+
+```{r}
+flows <- scopus_country_flows |> 
+     select(count=n_migrations,dest=iso2codeto,origin=iso2codefrom)
+head(flows)
+```
+
+```{r}
+locations <-countries_centroids |> 
+  select(id=iso_a2,name=name_long,lon=lon, lat=lat)
+head(locations)
+```
+
+```{r}
+flowmap <- flowmapblue(locations = locations, flows = flows)
+htmlwidgets::saveWidget(flowmap, "flowmap.html")
+```
+
+```{r}
+library(shiny)
+shiny::tags$iframe(src = "flowmap_widget.html", width = "100%", height = "600px")
+```
+
+```{r}
+project:
+  output-dir: docs
+
+```
+

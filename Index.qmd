@@ -7,7 +7,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-
 ```{r}
 library(sf)
 library(spData)
@@ -18,14 +17,9 @@ library(flowmapper)
 library(tidyverse)
 ```
 
-
-
 ```{r}
 scopus_country_flows <- read.csv("data_processed/scopus_2024_V1_scholarlymigration_countryflows_enriched.csv")
 ```
-
-
-
 
 ```{r}
 countries <- spData::world
@@ -99,5 +93,5 @@ htmlwidgets::saveWidget(flowmap, "flowmap.html")
 
 ```{r}
 library(shiny)
-shiny::tags$iframe(src = "flowmap_widget.html", width = "100%", height = "600px")
+shiny::tags$iframe(src = "flowmap.html", width = "100%", height = "600px")
 ```
